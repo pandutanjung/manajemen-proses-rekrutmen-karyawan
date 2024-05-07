@@ -1,5 +1,3 @@
-// JANGAN DILIAAATTTTT dl, bsk aja
-// jujur gatau hshs, blm aku cek lagi
 #include <iostream>
 #include <fstream>
 #include <string>
