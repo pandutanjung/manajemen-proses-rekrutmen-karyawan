@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #include <array>
 #include <algorithm>
 #include <iomanip>
@@ -8,23 +11,18 @@ using namespace std;
 
 // Struktur data untuk pelamar
 struct Pelamar {
-    int id;
+    string username;
     string nama;
-    string posisiLowongan;
+    string posisi;
     int nilaiBerkas;
-    int nilaiWawancara;
-    int nilaiRerata;
     string jadwalWawancara;
-    string keterangan; // "Diterima" atau "Ditolak"
+    int nilaiWawancara;
+    int totalNilai;
+    string keterangan;
 };
 
-// Fungsi untuk menghitung nilai rerata dari nilai berkas dan nilai wawancara
-int hitungNilaiRerata(int nilaiBerkas, int nilaiWawancara) {
-    return (nilaiBerkas + nilaiWawancara) / 2;
-}
-
 // Fungsi untuk mencetak baris tabel dengan border di setiap sisi sel
-void cetakBarisTabel(const array<string, 7>& data, const array<int, 7>& widths) {
+void cetakBarisTabel(const array<string, 8>& data, const array<int, 8>& widths) {
     cout << "|";
     for (size_t i = 0; i < data.size(); i++) {
         cout << setw(widths[i]) << left << data[i] << "|";
@@ -33,7 +31,7 @@ void cetakBarisTabel(const array<string, 7>& data, const array<int, 7>& widths) 
 }
 
 // Fungsi untuk mencetak garis horizontal tabel
-void cetakGaris(const array<int, 7>& widths) {
+void cetakGaris(const array<int, 8>& widths) {
     cout << "+";
     for (const int& width : widths) {
         cout << string(width, '-') << "+";
@@ -42,27 +40,28 @@ void cetakGaris(const array<int, 7>& widths) {
 }
 
 // Fungsi untuk menampilkan tabel list seluruh pelamar
-void tampilkanSeluruhPelamar(const array<Pelamar, 4>& pelamar) {
-    cout << "Daftar Seluruh Pelamar:\n";
+void tampilkanSeluruhPelamar(const vector<Pelamar>& pelamar, const string& posisi) {
+    cout << "Daftar Pelamar untuk Posisi " << posisi << " (Diurutkan):\n";
     
     // Daftar lebar kolom
-    array<int, 7> widths = {4, 10, 10, 7, 10, 7, 10};
+    array<int, 8> widths = {11, 17, 18, 12, 20, 15, 12, 13}; // Sesuaikan lebar kolomnya
     
     // Mencetak header tabel
     cetakGaris(widths);
-    cetakBarisTabel({"ID", "Nama", "Posisi", "Berkas", "Wawancara", "Rerata", "Jadwal WWC"}, widths);
+    cetakBarisTabel({"Username", "Nama", "Posisi", "Nilai Berkas", "Jadwal Wawancara", "Nilai Wawancara", "Nilai Total", "Keterangan"}, widths);
     cetakGaris(widths);
     
     // Mencetak data pelamar
     for (const auto& p : pelamar) {
-        array<string, 7> data = {
-            to_string(p.id),
+        array<string, 8> data = {
+            p.username,
             p.nama,
-            p.posisiLowongan,
+            p.posisi,
             to_string(p.nilaiBerkas),
+            p.jadwalWawancara,
             to_string(p.nilaiWawancara),
-            to_string(p.nilaiRerata),
-            p.jadwalWawancara
+            to_string(p.totalNilai),
+            p.keterangan
         };
         cetakBarisTabel(data, widths);
         cetakGaris(widths);
@@ -70,93 +69,90 @@ void tampilkanSeluruhPelamar(const array<Pelamar, 4>& pelamar) {
     cout << endl;
 }
 
-// Fungsi untuk menampilkan tabel list seluruh pelamar yang diterima
-void tampilkanPelamarDiterima(const array<Pelamar, 4>& pelamar) {
-    cout << "Daftar Pelamar Diterima:\n";
-    
-    // Daftar lebar kolom
-    array<int, 7> widths = {4, 10, 10, 7, 10, 7, 10};
-    
-    // Mencetak header tabel
-    cetakGaris(widths);
-    cetakBarisTabel({"ID", "Nama", "Posisi", "Berkas", "Wawancara", "Rerata", "Jadwal WWC"}, widths);
-    cetakGaris(widths);
-    
-    // Mencetak data pelamar yang diterima
-    for (const auto& p : pelamar) {
-        if (p.keterangan == "Diterima") {
-            array<string, 7> data = {
-                to_string(p.id),
-                p.nama,
-                p.posisiLowongan,
-                to_string(p.nilaiBerkas),
-                to_string(p.nilaiWawancara),
-                to_string(p.nilaiRerata),
-                p.jadwalWawancara
-            };
-            cetakBarisTabel(data, widths);
-            cetakGaris(widths);
-        }
+// Fungsi untuk membaca data pelamar dari file
+vector<Pelamar> bacaDataPelamar(const string& namaFile) {
+    vector<Pelamar> pelamar;
+    ifstream file(namaFile);
+    if (!file.is_open()) {
+        cerr << "Gagal membuka file " << namaFile << endl;
+        exit(1);
     }
-    cout << endl;
+    string line;
+    while (getline(file, line)) {
+        Pelamar p;
+        stringstream ss(line);
+        getline(ss, p.username, ',');
+        getline(ss, p.nama, ',');
+        getline(ss, p.posisi, ',');
+        string nilaiBerkasStr;
+        getline(ss, nilaiBerkasStr, ',');
+        p.nilaiBerkas = stoi(nilaiBerkasStr);
+        getline(ss, p.jadwalWawancara, ',');
+        string nilaiWawancaraStr;
+        getline(ss, nilaiWawancaraStr, ',');
+        p.nilaiWawancara = stoi(nilaiWawancaraStr);
+        p.totalNilai = p.nilaiBerkas + p.nilaiWawancara;
+        getline(ss, p.keterangan);
+        pelamar.push_back(p);
+    }
+    file.close();
+    return pelamar;
 }
 
-// Fungsi untuk menampilkan tabel list pelamar yang diterima per posisi lowongan
-void tampilkanPelamarDiterimaPerPosisi(const array<Pelamar, 4>& pelamar, const string& posisiLowongan) {
-    cout << "Daftar Pelamar Diterima untuk Posisi " << posisiLowongan << ":\n";
-    
-    // Daftar lebar kolom
-    array<int, 7> widths = {4, 10, 10, 7, 10, 7, 10};
-    
-    // Mencetak header tabel
-    cetakGaris(widths);
-    cetakBarisTabel({"ID", "Nama", "Posisi", "Berkas", "Wawancara", "Rerata", "Jadwal WWC"}, widths);
-    cetakGaris(widths);
-    
-    // Mencetak data pelamar yang diterima per posisi lowongan
-    for (const auto& p : pelamar) {
-        if (p.posisiLowongan == posisiLowongan && p.keterangan == "Diterima") {
-            array<string, 7> data = {
-                to_string(p.id),
-                p.nama,
-                p.posisiLowongan,
-                to_string(p.nilaiBerkas),
-                to_string(p.nilaiWawancara),
-                to_string(p.nilaiRerata),
-                p.jadwalWawancara
-            };
-            cetakBarisTabel(data, widths);
-            cetakGaris(widths);
-        }
-    }
-    cout << endl;
+// Fungsi pembanding untuk mengurutkan pelamar berdasarkan total nilai
+bool compareByTotalNilai(const Pelamar& a, const Pelamar& b) {
+    return a.totalNilai > b.totalNilai;
 }
 
-// Fungsi pembanding untuk mengurutkan pelamar berdasarkan id
-bool compareById(const Pelamar& a, const Pelamar& b) {
-    return a.id < b.id;
+// Fungsi pembanding untuk mengurutkan pelamar berdasarkan nama
+bool compareByNama(const Pelamar& a, const Pelamar& b) {
+    return a.nama < b.nama;
+}
+
+// Fungsi pembanding untuk mengurutkan pelamar berdasarkan posisi
+bool compareByPosisi(const Pelamar& a, const Pelamar& b) {
+    return a.posisi < b.posisi;
+}
+
+// Fungsi pembanding untuk mengurutkan pelamar berdasarkan keterangan diterima/ditolak
+bool compareByKeterangan(const Pelamar& a, const Pelamar& b) {
+    return a.keterangan < b.keterangan;
 }
 
 int main() {
-    // Contoh data pelamar
-    array<Pelamar, 4> pelamar = {
-        Pelamar{1, "Budi", "Programmer", 85, 90, hitungNilaiRerata(85, 90), "2024-05-02", "Diterima"},
-        Pelamar{2, "Andi", "Programmer", 75, 70, hitungNilaiRerata(75, 70), "2024-05-03", "Ditolak"},
-        Pelamar{3, "Cici", "Desainer", 90, 95, hitungNilaiRerata(90, 95), "2024-05-04", "Diterima"},
-        Pelamar{4, "Doni", "Desainer", 60, 65, hitungNilaiRerata(60, 65), "2024-05-05", "Ditolak"}
-    };
+    // Membaca data pelamar dari file posisilowongan.txt
+    vector<Pelamar> pelamarSoftwareEngineer = bacaDataPelamar("softwareEngineer.txt");
+    vector<Pelamar> pelamarDesainer = bacaDataPelamar("desainer.txt");
+    vector<Pelamar> pelamarContentWriter = bacaDataPelamar("contentWriter.txt");
 
-    // Mengurutkan pelamar berdasarkan id
-    sort(pelamar.begin(), pelamar.end(), compareById);
+    int choice;
+    cout << "Pilih cara sorting (1. Berdasarkan Nama, 2. Berdasarkan Posisi, 3. Berdasarkan Keterangan Diterima/Ditolak): ";
+    cin >> choice;
 
-    // Tampilkan tabel list seluruh pelamar
-    tampilkanSeluruhPelamar(pelamar);
+    switch (choice) {
+        case 1:
+            sort(pelamarSoftwareEngineer.begin(), pelamarSoftwareEngineer.end(), compareByNama);
+            sort(pelamarDesainer.begin(), pelamarDesainer.end(), compareByNama);
+            sort(pelamarContentWriter.begin(), pelamarContentWriter.end(), compareByNama);
+            break;
+        case 2:
+            sort(pelamarSoftwareEngineer.begin(), pelamarSoftwareEngineer.end(), compareByPosisi);
+            sort(pelamarDesainer.begin(), pelamarDesainer.end(), compareByPosisi);
+            sort(pelamarContentWriter.begin(), pelamarContentWriter.end(), compareByPosisi);
+            break;
+        case 3:
+            sort(pelamarSoftwareEngineer.begin(), pelamarSoftwareEngineer.end(), compareByKeterangan);
+            sort(pelamarDesainer.begin(), pelamarDesainer.end(), compareByKeterangan);
+            sort(pelamarContentWriter.begin(), pelamarContentWriter.end(), compareByKeterangan);
+            break;
+        default:
+            cout << "Pilihan tidak valid.\n";
+            return 1;
+    }
 
-    // Tampilkan tabel list seluruh pelamar yang diterima
-    tampilkanPelamarDiterima(pelamar);
-
-    // Tampilkan tabel list pelamar yang diterima per posisi lowongan
-    tampilkanPelamarDiterimaPerPosisi(pelamar, "Programmer");
+    tampilkanSeluruhPelamar(pelamarSoftwareEngineer, "Software Engineer");
+    tampilkanSeluruhPelamar(pelamarDesainer, "Desainer");
+    tampilkanSeluruhPelamar(pelamarContentWriter, "Content Writer");
 
     return 0;
 }
