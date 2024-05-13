@@ -106,7 +106,7 @@ void displayJobPositions(const vector<JobPosition>& jobPositions) {
     int positionNumber = 1;
 
     // Membuka file jobList.txt untuk penulisan
-    ofstream outFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\jobList.txt");
+    ofstream outFile("jobList.txt");
     if (!outFile.is_open()) {
         cerr << "Gagal membuka file jobList.txt" << endl;
         return;
