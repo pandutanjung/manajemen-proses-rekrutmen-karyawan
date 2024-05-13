@@ -60,7 +60,7 @@ ApplicantProfile enterApplicantProfile() {
 
 // Fungsi untuk menyimpan profil ke dalam file
 void saveProfileToFile(const string& username, const ApplicantProfile& profile) {
-    ofstream profileFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\profil.txt", ios::app);
+    ofstream profileFile("profil.txt", ios::app);
     if (profileFile.is_open()) {
         profileFile << "Username: " << username << endl; // Menambahkan username
         profileFile << "Nama: " << profile.nama << endl;
@@ -110,7 +110,7 @@ void registerApplicant(vector<User>& users) {
     users.push_back(newUser);
 
     // Menyimpan data pelamar ke dalam file
-    ofstream outFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\pelamar.txt", ios::app);
+    ofstream outFile("pelamar.txt", ios::app);
     if (outFile.is_open()) {
         outFile << newUser.username << " " << newUser.password << endl;
         outFile.close();
@@ -130,7 +130,7 @@ int main() {
     vector<User> applicantUsers;
 
     // Membaca data HRD dari file
-    ifstream hrdFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\hrd.txt");
+    ifstream hrdFile("hrd.txt");
     if (hrdFile.is_open()) {
         string username, password;
         while (hrdFile >> username >> password) {
@@ -146,7 +146,7 @@ int main() {
     }
 
     // Membaca data pelamar dari file
-    ifstream applicantFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\pelamar.txt");
+    ifstream applicantFile("pelamar.txt");
     if (applicantFile.is_open()) {
         string username, password;
         while (applicantFile >> username >> password) {
