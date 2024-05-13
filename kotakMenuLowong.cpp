@@ -8,7 +8,7 @@ using namespace std;
 // Fungsi untuk menampilkan menu lowongan kerja
 void displayMenu() {
     // Membuka file jobList.txt untuk membaca daftar posisi lowongan
-    ifstream inFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\jobList.txt");
+    ifstream inFile("jobList.txt");
     if (!inFile.is_open()) {
         cerr << "Gagal membuka file jobList.txt" << endl;
         return;
@@ -27,7 +27,7 @@ void displayMenu() {
 // Fungsi untuk menerapkan lowongan kerja
 void applyForJob(const string& jobTitle, const string& username, const string& applicantProfile) {
     // Menambahkan data pelamar ke dalam file apply.txt
-    ofstream outFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\apply.txt", ios::app);
+    ofstream outFile("apply.txt", ios::app);
     if (!outFile.is_open()) {
         cerr << "Gagal membuka file apply.txt" << endl;
         return;
@@ -38,11 +38,10 @@ void applyForJob(const string& jobTitle, const string& username, const string& a
 }
 
 // Fungsi untuk membaca data profil pelamar dari profil.txt berdasarkan username
-// Fungsi untuk membaca data profil pelamar dari profil.txt berdasarkan username
 string readApplicantProfile(const string& username) {
     string line;
     string applicantProfile;
-    ifstream inFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\profil.txt");
+    ifstream inFile("profil.txt");
     if (!inFile.is_open()) {
         cerr << "Gagal membuka file profil.txt" << endl;
         return applicantProfile;
@@ -84,7 +83,7 @@ int main() {
         cin.ignore();
 
         // Membuka kembali file jobList.txt untuk mencocokkan pilihan dengan nama posisi
-        ifstream inFile("C:\\Users\\Raihana\\RekruitmenKaryawan\\jobList.txt");
+        ifstream inFile("jobList.txt");
         if (!inFile.is_open()) {
             cerr << "Gagal membuka file jobList.txt" << endl;
             return 1;
